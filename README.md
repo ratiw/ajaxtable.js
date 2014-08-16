@@ -9,26 +9,35 @@ Usage
 Just provide the html table header with column name attribute `col` (with other optional attributes) as a template, then call `ajaxTable` inside your javascript tag for the specific selector.
 
 html
-
-    <table class="report">
-    <thead>
-        <th col="_row_number">&nbsp;</th>
-        <th col="emp_code">Code</th>
-        <th col="emp_name">Name</th>
-        <th col="emp_dept">Department</th>
-    </thead>
-    </table>
-
+```html
+<table class="report">
+<thead>
+    <th col="_row_number">&nbsp;</th>
+    <th col="emp_code">Code</th>
+    <th col="emp_name">Name</th>
+    <th col="emp_dept">Department</th>
+</thead>
+</table>
+```
 
 
 javascript  
+```js
+$('table.report').ajaxTable({
+    api: 'url_to_request_table_data',
+    showFooter: true/(false),
+    showSettingsButton: true/(false)
+});
+```
 
-    $('table.report').ajaxTable({
-        api: 'url_to_request_table_data',
-        showFooter: true/(false),
-        showSettingsButton: true/(false)
-    });
-    
+Or you can specify the url to the API inside the `<table>` tag like so,
+
+```html
+<table class="report" api="http://api.example.com/report">
+...
+</table>
+```
+
 
 Options
 -------
