@@ -66,13 +66,13 @@ Special Columns
 
 Column Processing
 -----------------
-
-    $('table.report').ajaxTable({
-        process_emp_dept: function(col, value) {
-            return '<strong>'+value+'</strong>';
-        }
-    });
-
+```js
+$('table.report').ajaxTable({
+    process_emp_dept: function(col, value) {
+        return '<strong>'+value+'</strong>';
+    }
+});
+```
 
 Optional Attributes
 --------------
@@ -96,11 +96,13 @@ Custom Column Format
 -------------
 You can define custom format for a given column as a javascript callback function by defining the option name as `format_<column_name>` and declare it as a function with two arguments. Both arguments will be passed to your custom function, the first one being the current column properties and the second one is the value of the current column of the current row.
 
-    $('table.report').ajaxTable({
-        format_emp_dept: function(col, value) {
-            return '<strong>'+value+'</strong>';
-        }
-    });
+```js
+$('table.report').ajaxTable({
+    format_emp_dept: function(col, value) {
+        return '<strong>'+value+'</strong>';
+    }
+});
+```
 
 where `col` is the column properties, and `value` is the data value of the current row of the given column. Do some fancy thiings with it!
 
@@ -112,24 +114,29 @@ This example shows how you can define, calculate, and display the calculated col
 
 define calculated column in the html table as another column.
 
-    ...  
-    <tr col="total" format="money">Total</tr>
-    ...  
+```html
+...  
+<tr col="total" format="money">Total</tr>
+...  
+```
 
 define the custom column processing callback function in `ajaxTable()` option.
 
-    $('table.report').ajaxTable({
-        ...
-        process_total: function(col, data) {
-            // calculate the value and store it in the row's data
-            // object for later use.
-            data.total = data.emp_wage * data.work_days;
-            return data.total;
-        }
-    });
-    
+```js
+$('table.report').ajaxTable({
+    ...
+    process_total: function(col, data) {
+        // calculate the value and store it in the row's data
+        // object for later use.
+        data.total = data.emp_wage * data.work_days;
+        return data.total;
+    }
+});
+```
+
 additionally, you can easily calculate the grand total, like so.
 
+```js
     var grand_total = 0;
     $('table.report').on('after_row', function(event, data) {
         grand_total += data.total;
@@ -138,4 +145,5 @@ additionally, you can easily calculate the grand total, like so.
     $('table.report').on('finished', function() {
         console.log('Grand Total = ' + grand_total);
     });
+```
 
