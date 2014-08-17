@@ -31,7 +31,7 @@
 			$this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
 
 			$this.columns = parseColumns($this);
-			//console.log('columns: ', $this.columns);
+			console.log('columns: ', $this.columns);
 
 			if (! $this.options.url) {
 				$this.options.url = $this.data('url');
@@ -103,7 +103,7 @@
 		url : null,
         key : null,
 		showFooter : false,
-		showSettingsButton : true,
+		showSettingsButton : false,
 		pagination : false,
 		page_size : 20
 	};
@@ -118,16 +118,21 @@
 		$.each($table.find('thead th'), function(idx, th) {
 			var $th = $(th);
 			var col_visible = ($th.attr('visible') == 'false') ? false : true;
+            var col_align = $th.data('align');
 
 			columns.push({
                 name: $th.data('col'),
                 label: $th.text(),
-                align: $th.data('align'),
+                align: col_align,
                 format: $th.data('format'),
                 sort: $th.data('sort'),
                 summary: initSummary($th.data('summary')),
                 visible: col_visible
 			});
+
+            if (col_align) {
+                $th.css('text-align', col_align);
+            }
 		});
 
 		return columns;
