@@ -17,7 +17,6 @@ html
     <th data-col="emp_name">Name</th>
     <th data-col="emp_dept">Department</th>
 </thead>
-<tbody></tbody>
 </table>
 ```
 
