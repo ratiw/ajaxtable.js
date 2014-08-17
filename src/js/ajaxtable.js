@@ -41,6 +41,12 @@
                 $this.options.key = $this.data('key');
             }
 
+            $this.tbody = $this.find('tbody');
+            if ($this.tbody.length === 0) {
+                $this.tbody = $('<tbody></tbody>');
+                $this.append($this.tbody);
+            }
+
 			$this.wrap('<div class="ajaxtable-wrapper"></div>');
 			if ($this.options.showSettingsButton) {
 				attachSettingButton($this);
@@ -61,7 +67,7 @@
 
 				//out = renderRow($this, results.items);
 				out = renderRow($this, results[$this.options.key]);
-				$this.find('tbody').html(out);
+                $this.tbody.html(out);
 
 				if ($this.options.showFooter) {
 					$this.tfoot = $this.find('tfoot');
@@ -114,12 +120,13 @@
 			var col_visible = ($th.attr('visible') == 'false') ? false : true;
 
 			columns.push({
-				name: $th.data('col'),
-				label: $th.text(),
-				align: $th.data('align'),
-				format: $th.data('format'),
-				summary: initSummary($th.data('summary')),
-				visible: col_visible
+                name: $th.data('col'),
+                label: $th.text(),
+                align: $th.data('align'),
+                format: $th.data('format'),
+                sort: $th.data('sort'),
+                summary: initSummary($th.data('summary')),
+                visible: col_visible
 			});
 		});
 
