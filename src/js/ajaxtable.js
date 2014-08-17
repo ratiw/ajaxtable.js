@@ -30,14 +30,16 @@
 
 			$this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
 
-			$this.data = null;
-
 			$this.columns = parseColumns($this);
-			// console.log('columns: ', $this.columns);
+			//console.log('columns: ', $this.columns);
 
-			if (! $this.options.api) {
-				$this.options.api = $this.attr('api');
+			if (! $this.options.url) {
+				$this.options.url = $this.data('url');
 			}
+
+            if (! $this.options.key) {
+                $this.options.key = $this.data('key');
+            }
 
 			$this.wrap('<div class="ajaxtable-wrapper"></div>');
 			if ($this.options.showSettingsButton) {
@@ -45,7 +47,7 @@
 			}
 
 			var out = '';
-			var api_url = $this.options.api;
+			var api_url = $this.options.url;
 			if ($this.options.pagination) {
 
 			}
@@ -57,7 +59,8 @@
 				// trigger data loaded event, start processing
 				$this.trigger('loaded');
 
-				out = renderRow($this, results.items);
+				//out = renderRow($this, results.items);
+				out = renderRow($this, results[$this.options.key]);
 				$this.find('tbody').html(out);
 
 				if ($this.options.showFooter) {
@@ -91,11 +94,12 @@
 	};
 
 	$.fn.ajaxTable.defaults = {
-		api : null,
+		url : null,
+        key : null,
 		showFooter : false,
 		showSettingsButton : true,
 		pagination : false,
-		page_size : 20,
+		page_size : 20
 	};
 
 	$.fn.ajaxTable.load = function(page) {
@@ -110,12 +114,12 @@
 			var col_visible = ($th.attr('visible') == 'false') ? false : true;
 
 			columns.push({
-				name: $th.attr('col'),
+				name: $th.data('col'),
 				label: $th.text(),
-				align: $th.attr('align'),
-				format: $th.attr('format'),
-				summary: initSummary($th.attr('summary')),
-				visible: col_visible,
+				align: $th.data('align'),
+				format: $th.data('format'),
+				summary: initSummary($th.data('summary')),
+				visible: col_visible
 			});
 		});
 
@@ -128,7 +132,7 @@
 		var obj = {
 			'function': func,
 			'sum': 0,
-			'count': 0,
+			'count': 0
 		};
 
 		return obj;
@@ -137,15 +141,15 @@
 	function renderRow($table, results) {
 		var out = '';
 
-		$.each(results, function(key, value) {
+		$.each(results, function(key, rowData) {
 
 			// trigger processing event for each row of data,
 			// passing the row data to the event listeners
-			$table.trigger('before_row', this);
+			$table.trigger('before_row', rowData);
 
 			out += '<tr>';
 			$.each($table.columns, function(idx, col) {
-				out += (col.name == '_row_number') ? '<td class="align-right">'+(key+1)+'</td>' : renderColumn($table, col, value);
+				out += (col.name == '_row_number') ? '<td class="align-right">'+(key+1)+'</td>' : renderColumn($table, col, rowData);
 			});
 			out += '</tr>\n';
 
@@ -155,11 +159,11 @@
 		return out;
 	}
 
-	function renderColumn($table, col, data) {
+	function renderColumn($table, col, rowData) {
 		var value = cls = '';
 
 		var process_method = $table.options['process_' + col.name];
-		value = (process_method && typeof process_method === 'function') ? process_method(col, data) : data[col.name];
+		value = (process_method && typeof process_method === 'function') ? process_method(col, rowData) : rowData[col.name];
 
 		if (col.summary) {
 			col.summary.sum += parseFloat(value);
@@ -284,10 +288,10 @@
  *  - Sort order
  *
  *  DONE:
- *  22/08/13
+ *  22/08/56
  *  - Options to select visible columns
- *  01/09/13
+ *  01/09/56
  *  - Column summary option: sum, count, avg
- *  04/09/13
+ *  04/09/56
  *  - Column visibility during initialization (parseColumn)
  */
