@@ -37,6 +37,10 @@ Or you can specify the url to the API inside the `<table>` tag like so,
 <table class="report" data-url="http://api.example.com/report" data-key"items">
 ...
 </table>
+
+<script>
+    $('table.report').ajaxTable();
+</script>
 ```
 
 
