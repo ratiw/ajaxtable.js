@@ -34,7 +34,7 @@ $('table.report').ajaxTable({
 Or you can specify the url to the API inside the `<table>` tag like so,
 
 ```html
-<table class="report" api="http://api.example.com/report">
+<table class="report" data-url="http://api.example.com/report" data-key"data">
 ...
 </table>
 ```
@@ -42,7 +42,7 @@ Or you can specify the url to the API inside the `<table>` tag like so,
 
 Options
 -------
-- `api` -- the api url used to request for the table data.
+- `url` -- the api url used to request for the table data.
 
 - `showFooter`
 
