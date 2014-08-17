@@ -41,6 +41,12 @@
                 $this.options.key = $this.data('key');
             }
 
+            $this.tfoot = $this.find('tfoot');
+            if ($this.tfoot.length === 0) {
+                $this.tfoot = $('<tfoot></tfoot>');
+                $this.append($this.tfoot);
+            }
+
             $this.tbody = $this.find('tbody');
             if ($this.tbody.length === 0) {
                 $this.tbody = $('<tbody></tbody>');
@@ -110,7 +116,7 @@
 
 	$.fn.ajaxTable.load = function(page) {
 
-	}
+	};
 
 	function parseColumns($table) {
 		var columns = [];
@@ -141,13 +147,11 @@
 	function initSummary(func) {
 		if (func === undefined) return func;
 
-		var obj = {
+		return {
 			'function': func,
 			'sum': 0,
 			'count': 0
 		};
-
-		return obj;
 	}
 
 	function renderRow($table, results) {
