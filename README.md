@@ -17,6 +17,7 @@ html
     <th col="emp_name">Name</th>
     <th col="emp_dept">Department</th>
 </thead>
+<tbody></tbody>
 </table>
 ```
 
