@@ -6,7 +6,7 @@ This is a jQuery plugin to render table using remote data via ajax request.
 Usage
 -----
 
-Just provide the html table header with column name attribute `col` (with other optional attributes) as a template, then call `ajaxTable` inside your javascript tag for the specific selector.
+Just provide the html table header with column name attribute `data-col` (with other optional attributes) as a template, then call `ajaxTable` inside your javascript tag for the specific selector.
 
 html
 ```html
