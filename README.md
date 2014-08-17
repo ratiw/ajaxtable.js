@@ -121,7 +121,7 @@ define calculated column in the html table as another column.
 
 ```html
 ...  
-<tr col="total" data-format="money">Total</tr>
+<tr data-col="total" data-format="money">Total</tr>
 ...  
 ```
 
