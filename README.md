@@ -12,10 +12,10 @@ html
 ```html
 <table class="report">
 <thead>
-    <th col="_row_number">&nbsp;</th>
-    <th col="emp_code">Code</th>
-    <th col="emp_name">Name</th>
-    <th col="emp_dept">Department</th>
+    <th data-col="_row_number">&nbsp;</th>
+    <th data-col="emp_code">Code</th>
+    <th data-col="emp_name">Name</th>
+    <th data-col="emp_dept">Department</th>
 </thead>
 <tbody></tbody>
 </table>
@@ -25,7 +25,7 @@ html
 javascript  
 ```js
 $('table.report').ajaxTable({
-    api: 'url_to_request_table_data',
+    url: 'url_to_request_table_data',
     showFooter: true/(false),
     showSettingsButton: true/(false)
 });
@@ -34,7 +34,7 @@ $('table.report').ajaxTable({
 Or you can specify the url to the API inside the `<table>` tag like so,
 
 ```html
-<table class="report" data-url="http://api.example.com/report" data-key"data">
+<table class="report" data-url="http://api.example.com/report" data-key"items">
 ...
 </table>
 ```
@@ -42,7 +42,7 @@ Or you can specify the url to the API inside the `<table>` tag like so,
 
 Options
 -------
-- `url` -- the api url used to request for the table data.
+- `url` | `data-url` -- the api url to request for the table data.
 
 - `showFooter`
 
@@ -78,9 +78,9 @@ $('table.report').ajaxTable({
 Optional Attributes
 --------------
 
-- `align` : __left__ | center | right
-- `format` : *see format options*
-- `summary` : sum | count | avg
+- `data-align` : __left__ | center | right
+- `data-format` : *see format options*
+- `data-summary` : sum | count | avg
 - `visible` : __true__ | false
 
 Format Options
@@ -117,7 +117,7 @@ define calculated column in the html table as another column.
 
 ```html
 ...  
-<tr col="total" format="money">Total</tr>
+<tr col="total" data-format="money">Total</tr>
 ...  
 ```
 
