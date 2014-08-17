@@ -30,28 +30,7 @@
 
 			$this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
 
-			$this.columns = parseColumns($this);
-			console.log('columns: ', $this.columns);
-
-			if (! $this.options.url) {
-				$this.options.url = $this.data('url');
-			}
-
-            if (! $this.options.key) {
-                $this.options.key = $this.data('key');
-            }
-
-            $this.tfoot = $this.find('tfoot');
-            if ($this.tfoot.length === 0) {
-                $this.tfoot = $('<tfoot></tfoot>');
-                $this.append($this.tfoot);
-            }
-
-            $this.tbody = $this.find('tbody');
-            if ($this.tbody.length === 0) {
-                $this.tbody = $('<tbody></tbody>');
-                $this.append($this.tbody);
-            }
+            init($this);
 
 			$this.wrap('<div class="ajaxtable-wrapper"></div>');
 			if ($this.options.showSettingsButton) {
@@ -118,6 +97,31 @@
 
 	};
 
+    function init($this) {
+        $this.columns = parseColumns($this);
+        //console.log('columns: ', $this.columns);
+
+        if (! $this.options.url) {
+            $this.options.url = $this.data('url');
+        }
+
+        if (! $this.options.key) {
+            $this.options.key = $this.data('key');
+        }
+
+        $this.tfoot = $this.find('tfoot');
+        if ($this.tfoot.length === 0) {
+            $this.tfoot = $('<tfoot></tfoot>');
+            $this.append($this.tfoot);
+        }
+
+        $this.tbody = $this.find('tbody');
+        if ($this.tbody.length === 0) {
+            $this.tbody = $('<tbody></tbody>');
+            $this.append($this.tbody);
+        }
+    }
+
 	function parseColumns($table) {
 		var columns = [];
 
@@ -176,10 +180,8 @@
 	}
 
 	function renderColumn($table, col, rowData) {
-		var value = cls = '';
-
 		var process_method = $table.options['process_' + col.name];
-		value = (process_method && typeof process_method === 'function') ? process_method(col, rowData) : rowData[col.name];
+		var value = (process_method && typeof process_method === 'function') ? process_method(col, rowData) : rowData[col.name];
 
 		if (col.summary) {
 			col.summary.sum += parseFloat(value);
@@ -189,17 +191,15 @@
 		var format_method = $table.options['format_' + col.name];
 		value = (format_method && typeof format_method === 'function') ? format_method(col, value) : formatValue(col.format, value);
 
-		cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
+		var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
 
 		return '<td'+cls+'>'+value+'</td>';
 	}
 
 	function renderFooter($table) {
-		var out = cls = '';
-
-		out = '<tr>';
+		var out = '<tr>';
 		$.each($table.columns, function(idx, col) {
-			cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
+			var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
 			out += '<td'+cls+'>' + (col.summary ? getSummaryValue(col.summary, col.format) : '&nbsp;') + '</td>';
 		});
 		out += '</tr>';
@@ -270,7 +270,7 @@
 			btn += 'class="toggle-column" col-id="'+i+'"'+($table.columns[i].visible ? ' checked' : '')+'>';
 			btn += $table.columns[i].label;
 			btn += '</label></li>';
-		};
+		}
 		btn += 		'</ul>';
 		btn += 	'</div>';
 		btn += '</div>';
