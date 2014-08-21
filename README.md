@@ -1,7 +1,7 @@
 AjaxTable.js
 ============
 
-This is a jQuery plugin to render table using remote data via ajax request.
+This is a jQuery plugin to render table using remote data via ajax request. Most of the works are done via data attributes tag.
 
 Usage
 -----
@@ -41,6 +41,37 @@ Or you can specify the url to the API inside the `<table>` tag like so,
     $('table.report').ajaxTable();
 </script>
 ```
+
+
+Data Structure
+--------------
+The data return from the server API should be in the following JSON format:
+
+```
+{
+    data: [
+        {..record1..},
+        {..record2..}
+    ],
+    meta: {
+        pagination: {
+            count:          xx,     // number of records returned for this page
+            current_page:   x,      // current page
+            per_page:       xx,     // number of records per page
+            total:          xx,     // total number of records
+            total_pages:    xx,     // total calculated pages
+        },
+        base_url:   '...',      // base url uses to construct api request url
+        sort:       '...',      // sort order
+        filter:     '...',      // filter condition
+        search:     '...'       // search query
+    }
+}
+```
+
+The `data` key is the key name pointed to the data records from the returned JSON. This can be overridden by specifying the options `key`, or specify in the `data-key` attribute in the target table.
+
+The `meta` key is the key name pointed to metadata info of the data records from the returned JSON. The can also be overridden by specifying the options `meta`, or specify in the `data-meta` attribute in the target table.
 
 
 Options
