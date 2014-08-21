@@ -103,7 +103,7 @@ Special Columns
 --------------
 
 - `_row_number`
-- `_checkbox`
+
 
 
 Column Processing
