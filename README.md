@@ -77,10 +77,17 @@ The `meta` key is the key name pointed to metadata info of the data records from
 Options
 -------
 - `url` | `data-url` -- the api url to request for the table data.
+- `key`
+- `meta`
+- `search`
+- `filter`
+- `sort`
 
 - `showFooter`
 
 - `showSettingsButton`
+- `pagination`
+- `paginationFunction`
 
 
 Events
