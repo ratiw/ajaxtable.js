@@ -1,0 +1,33 @@
+table {
+    border: 1px solid silver;
+}
+table thead tr {
+    border-bottom: 3px solid silver;
+}
+table th:first-child, td:first-child {
+    border-right: 1px solid silver;
+}
+table th, table th a, table th a:link, table th a:visited {
+    color: #49545a;
+    text-decoration: none;
+}
+table th a:hover {
+    color: orangered;
+}
+table th[data-sortable] a {
+    background: url("../img/orderable.png") no-repeat center left;
+    background-position: 0 4px;
+    background-size: 8px;
+    padding-left: 13px;
+}
+table th[data-sortable="asc"] a {
+    background: url("../img/orderable.png") no-repeat center left;
+    background-size: 8px;
+    padding-left: 13px;
+}
+table th[data-sortable="desc"] a {
+    background: url("../img/orderable.png") no-repeat center left;
+    background-position: 0 -65px;
+    background-size: 8px;
+    padding-left: 13px;
+}
