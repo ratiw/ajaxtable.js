@@ -205,6 +205,9 @@
         // search
         parameters += $this.options.search ? '&q='+$this.options.search : '';
 
+        // per page
+        parameters += $this.options.page_size ? '&per_page='+$this.options.page_size : '';
+
         // page
         parameters += (page) ? '&page='+page : '';
 
