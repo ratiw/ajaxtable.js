@@ -32,69 +32,29 @@
 
             init($this);
 
+            // setting buttons
 			$this.wrap('<div class="ajaxtable-wrapper"></div>');
 			if ($this.options.showSettingsButton) {
 				attachSettingButton($this);
 			}
 
-			var out = '';
-			var api_url = $this.options.url;
-			if ($this.options.pagination) {
+            load($this);
 
-			}
-
-			// trigger loading data from api
-			$this.trigger('loading');
-
-			$.getJSON(api_url, function(results) {
-				// trigger data loaded event, start processing
-				$this.trigger('loaded');
-
-				//out = renderRow($this, results.items);
-				out = renderRow($this, results[$this.options.key]);
-                $this.tbody.html(out);
-
-				if ($this.options.showFooter) {
-					$this.tfoot = $this.find('tfoot');
-					if ($this.tfoot.length === 0 ) {
-						$this.tfoot = $('<tfoot>&nbsp;</tfoot>');
-					}
-
-					out = renderFooter($this);
-					$this.tfoot.html(out);
-				}
-
-				// hide columns that should not be visible
-				$.each($this.columns, function(idx, col) {
-					if ( ! col.visible) {
-						toggleColumn($this, idx+1);
-					}
-				});
-
-				// trigger finish event
-				$this.trigger('finished');
-
-			}).fail(function(results) {
-				// trigger error event when loading from api failed
-				$this.trigger('error');
-
-				out = '<tr><td colspan="'+$this.columns.length+'">'+results.responseText+'</td></tr>';
-				$this.find('tbody').html(out);
-			});
 		});
 	};
 
 	$.fn.ajaxTable.defaults = {
-		url : null,
-        key : null,
+		url : null,         // URL of the remote data request
+        key : 'data',       // name of the data element in JSON data returned from the given URL
+        meta: 'meta',       // name of the meta element in JSON data returned from the given URL
+        search: null,
+        filter: null,
+        sort: null,
 		showFooter : false,
 		showSettingsButton : false,
-		pagination : false,
+		pagination : false, // pagination element to be used or false to disable pagination
+        paginationFunction: null,   // custom pagination function
 		page_size : 20
-	};
-
-	$.fn.ajaxTable.load = function(page) {
-
 	};
 
     function init($this) {
@@ -107,6 +67,10 @@
 
         if (! $this.options.key) {
             $this.options.key = $this.data('key');
+        }
+
+        if (! $this.options.meta) {
+            $this.options.meta = $this.data('meta');
         }
 
         $this.tfoot = $this.find('tfoot');
@@ -122,22 +86,25 @@
         }
     }
 
-	function parseColumns($table) {
+    function parseColumns($table) {
 		var columns = [];
 
 		$.each($table.find('thead th'), function(idx, th) {
 			var $th = $(th);
+            var col_name = $th.data('col');
 			var col_visible = ($th.attr('visible') == 'false') ? false : true;
             var col_align = $th.data('align');
 
 			columns.push({
-                name: $th.data('col'),
+                name: col_name,
                 label: $th.text(),
                 align: col_align,
                 format: $th.data('format'),
                 sort: $th.data('sort'),
                 summary: initSummary($th.data('summary')),
-                visible: col_visible
+                visible: col_visible,
+                process_method: getCustomFunction($table.options['process_' + col_name]),
+                format_method: getCustomFunction($table.options['format_' + col_name])
 			});
 
             if (col_align) {
@@ -147,6 +114,10 @@
 
 		return columns;
 	}
+
+    function getCustomFunction(method) {
+        return (method && typeof method === 'function') ? method : null;
+    }
 
 	function initSummary(func) {
 		if (func === undefined) return func;
@@ -158,10 +129,78 @@
 		};
 	}
 
-	function renderRow($table, results) {
+    function load($this, page) {
+        var api_url = (page) ? ($this.options.url+'?page='+page) : $this.options.url;
+
+        // trigger loading data from api
+        $this.trigger('loading');
+
+        $.getJSON(api_url, function(results) {
+            // trigger data loaded event, start processing
+            $this.trigger('loaded');
+
+            clearRows($this);
+
+            var out = renderRow($this, results);
+            //var out = renderRow($this, object_get(results, $this.options.key));
+            $this.tbody.html(out);
+
+            if ($this.options.showFooter) {
+                $this.tfoot = $this.find('tfoot');
+                if ($this.tfoot.length === 0 ) {
+                    $this.tfoot = $('<tfoot>&nbsp;</tfoot>');
+                }
+
+                out = renderFooter($this);
+                $this.tfoot.html(out);
+            }
+
+            // hide columns that should not be visible
+            $.each($this.columns, function(idx, col) {
+                if ( ! col.visible) {
+                    toggleColumn($this, idx+1);
+                }
+            });
+
+            // pagination
+            if ($this.options.pagination) {
+                renderPagination($this, object_get(results, $this.options.meta));
+                bindEvents($this);
+            }
+
+            // trigger finish event
+            $this.trigger('finished');
+
+        }).fail(function(results) {
+            // trigger error event when loading from api failed
+            $this.trigger('error');
+
+            var out = '<tr><td colspan="'+$this.columns.length+'">'+results.responseText+'</td></tr>';
+            $this.find('tbody').html(out);
+        });
+    }
+
+    function bindEvents($this) {
+        if ($this.options.pagination) {
+            $($this.options.pagination+' .pagination').on('click', 'a', function(e) {
+                var page = $(e.target).attr('href');
+                load($this, page.replace('#',''));
+                e.preventDefault();
+            });
+        }
+    }
+
+    function clearRows($this) {
+        $this.tbody.empty();
+    }
+
+    function renderRow($table, results) {
 		var out = '';
 
-		$.each(results, function(key, rowData) {
+        var data = object_get(results, $table.options.key);
+        var meta = object_get(results, $table.options.meta);
+
+		$.each(data, function(key, rowData) {
 
 			// trigger processing event for each row of data,
 			// passing the row data to the event listeners
@@ -169,7 +208,10 @@
 
 			out += '<tr>';
 			$.each($table.columns, function(idx, col) {
-				out += (col.name == '_row_number') ? '<td class="align-right">'+(key+1)+'</td>' : renderColumn($table, col, rowData);
+				//out += (col.name == '_row_number') ? '<td class="align-right">'+(key+1)+'</td>' : renderColumn($table, col, rowData);
+				out += (col.name == '_row_number')
+                    ? renderRowNo(meta.pagination, key+1)
+                    : renderColumn($table, col, rowData);
 			});
 			out += '</tr>\n';
 
@@ -179,17 +221,20 @@
 		return out;
 	}
 
+    function renderRowNo(pagination, row) {
+        var rowNo = (pagination.current_page - 1) * pagination.per_page + row;
+        return '<td class="align-right">' + rowNo + '</td>';
+    }
+
 	function renderColumn($table, col, rowData) {
-		var process_method = $table.options['process_' + col.name];
-		var value = (process_method && typeof process_method === 'function') ? process_method(col, rowData) : rowData[col.name];
+        var value = col.process_method ? col.process_method(col, rowData) : rowData[col.name];
 
 		if (col.summary) {
 			col.summary.sum += parseFloat(value);
 			col.summary.count += 1;
 		}
 
-		var format_method = $table.options['format_' + col.name];
-		value = (format_method && typeof format_method === 'function') ? format_method(col, value) : formatValue(col.format, value);
+        ;value = col.format_method ? col.format_method(col, rowData) : formatValue(col.format, value);
 
 		var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
 
@@ -288,20 +333,120 @@
 		$table.find('td:nth-child('+(nth)+')').toggle('fast', 'linear');
 	}
 
+    function renderPagination($this, meta) {
+        var customPagination = getCustomFunction($this.options.paginationFunction);
+        var pagination = (customPagination === null)
+            ? showDefaultPagination(meta)
+            : customPagination(meta);
+
+        if ($this.options.pagination === true || $($this.options.pagination).length === 0) {
+            console.log('Pagination element ("'+ $this.options.pagination+'") not found. Please specify a correct pagination element.');
+        } else {
+            $($this.options.pagination).html(pagination);
+        }
+    }
+
+    function showDefaultPagination(meta) {
+        var out = '';
+
+        // Previous
+        out += getPrevious(meta, page);
+
+        for (var page = 1; page <= meta.pagination.total_pages; page++) {
+            if (page == meta.pagination.current_page) {
+                out += getDisabledTextWrapper(page);
+            } else {
+                out += getPageLinkWrapper(makeLink(meta, page), page);
+            }
+        }
+        // Next
+        out += getNext(meta);
+
+        return '<ul class="pagination">' + out + '</ul>';
+    }
+
+    function makeLink(meta, page) {
+        var param = [];
+
+        param['q'] = (meta.search == '') ? '' : 'q='+meta.search;
+        param['filter'] = (meta.filter == '') ? '' : 'filter='+meta.filter;
+        param['sort'] = (meta.sort == '') ? '' : 'sort='+meta.sort;
+        param['page'] = page;
+
+        //return meta.base_url + '?' + makeAttributes(param, '=', '&');
+        return '#'+page;
+    }
+
+    function makeAttributes(arr, connector, separator) {
+        var out = '';
+
+        if (!connector) connector = '=';
+        if (!separator) separator = ' ';
+
+        for (var k in arr) {
+            out += (out === '') ? '' : separator;
+            out += k + connector + arr[k];
+        }
+        return out;
+    }
+
+    function getPageLinkWrapper(url, page, rel) {
+        rel = (!rel) ? '' : ' rel="'+rel+'"';
+
+        return '<li><a href="' + url + '"' + rel + '>' + page + '</a></li>';
+        // template: '<li><a href="{url}"{rel}>{page}</a></li>';
+    }
+
+    function getDisabledTextWrapper(text) {
+        return '<li class="disabled"><span>' + text + '</span></li>';
+    }
+
+    function getActivePageWarpper(text) {
+        return '<li class="active"><span>' + text + '</span></li>';
+    }
+
+    function getPrevious(meta) {
+        var page = meta.pagination.current_page;
+        if (page == 1) {
+            return getDisabledTextWrapper('&laquo;')
+        } else {
+            return getPageLinkWrapper(makeLink(meta, page-1), '&laquo;');
+        }
+
+    }
+
+    function getNext(meta) {
+        var page = meta.pagination.current_page;
+        if (page == meta.pagination.total_pages) {
+            return getDisabledTextWrapper('&raquo;');
+        } else {
+            return getPageLinkWrapper(makeLink(meta, page+1), '&raquo;');
+        }
+    }
+
+    function object_get(obj, key) {
+        if (!key || $.trim(key) == '') return obj;
+        $.each(key.split('.'), function(idx, seg) {
+            if (typeof obj !== 'object' || obj[seg] === undefined) {
+                obj = undefined;
+                return obj;
+            }
+            obj = obj[seg];
+        });
+        return obj;
+    }
 })(jQuery);
 /*
  * TODO:
+ *  - Filters
+ *  - Sort order
+ *  - Paging via query string, also use it to display proper row number
  *  - The API should also send summary value (sum, count, avg) together
  *    with the data.
- *  - Paging with custom pagination (can point to the existing div).
- *  - Paging via query string, also use it to display proper row number
- *  - Summary row in <tfoot>
  *  - CRUD with form and additional API for them? -- will it add more complexity?
  *  - Column grouping?
  *  - Title and sub-title options
  *  - Table width 100% will not accommodate table with many columns (20+)
- *  - Filters
- *  - Sort order
  *
  *  DONE:
  *  22/08/56
@@ -310,4 +455,8 @@
  *  - Column summary option: sum, count, avg
  *  04/09/56
  *  - Column visibility during initialization (parseColumn)
+ *  20/08/57
+ *  - Paging with custom pagination (can point to the existing div).
+ *  21/08/57
+ *  - Pagination event binding
  */
