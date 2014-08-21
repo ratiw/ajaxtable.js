@@ -60,11 +60,7 @@ The data return from the server API should be in the following JSON format:
             per_page:       xx,     // number of records per page
             total:          xx,     // total number of records
             total_pages:    xx,     // total calculated pages
-        },
-        base_url:   '...',      // base url uses to construct api request url
-        sort:       '...',      // sort order
-        filter:     '...',      // filter condition
-        search:     '...'       // search query
+        }
     }
 }
 ```
@@ -79,9 +75,6 @@ Options
 - `url` | `data-url` -- the api url to request for the table data.
 - `key`
 - `meta`
-- `search`
-- `filter`
-- `sort`
 
 - `showFooter`
 
