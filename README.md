@@ -114,8 +114,38 @@ Optional Attributes
 
 - `data-align` : __left__ | center | right
 - `data-format` : *see format options*
+- `data-sortable` : [asc | desc]
 - `data-summary` : sum | count | avg
 - `visible` : __true__ | false
+
+Sortable Options
+----------------
+```
+NOTE: In order to use this option, your remote API must also support sortable option. The sorting is never done on the client side.
+```
+
+You can specify any column is sortable by specifying `data-sortable` attribute on the table column header `th` element like so,
+
+```html
+<table class="report">
+<thead>
+    <th data-col="_row_number">&nbsp;</th>
+    <th data-col="emp_code" data-sortable="asc">Code</th>
+    <th data-col="emp_name" data-sortable>Name</th>
+    <th data-col="emp_dept" data-sortable>Department</th>
+</thead>
+</table>
+```
+
+When the user clicks on that sortable column header, a request with sort option will be sent to the remote API. **It is expected that the remote API will return that data records with the given sort order.**
+
+Sort optoin will be appended to the URL of the API like so,
+
+```javascript
+url = 'api.example.com?sort=-emp_code
+```
+
+Please note the `-` sign in front of `emp_code`, this denotes that "descending sort order" of the `emp_code`. 
 
 Format Options
 --------------
