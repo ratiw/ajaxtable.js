@@ -142,10 +142,16 @@ When the user clicks on that sortable column header, a request with sort option 
 Sort optoin will be appended to the URL of the API like so,
 
 ```javascript
-url = 'api.example.com?sort=-emp_code
+url = 'api.example.com?sort=-emp_code';
 ```
 
 Please note the `-` sign in front of `emp_code`, this denotes that "descending sort order" of the `emp_code`. 
+
+Default sort option can be specify as the value of `data-sortable` attribute in the HTML or it can be specify in the `sort` option in the JavaScript.
+
+```javascript
+$('table').ajaxTable({ sort: -emp_code });
+```
 
 Format Options
 --------------
