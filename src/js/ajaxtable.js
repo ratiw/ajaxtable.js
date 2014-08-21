@@ -55,7 +55,7 @@
 		showSettingsButton : false,
 		pagination : false, // pagination element to be used or false to disable pagination
         paginationFunction: null,   // custom pagination function
-		page_size : 20
+		page_size : 10
 	};
 
     function init($this) {
