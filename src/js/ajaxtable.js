@@ -38,9 +38,10 @@
 				attachSettingButton($this);
 			}
 
-            load($this);
+            bindEvents($this);
 
-		});
+            load($this);
+        });
 	};
 
 	$.fn.ajaxTable.defaults = {
@@ -59,7 +60,7 @@
 
     function init($this) {
         $this.columns = parseColumns($this);
-        //console.log('columns: ', $this.columns);
+        console.log('columns: ', $this.columns);
 
         if (! $this.options.url) {
             $this.options.url = $this.data('url');
@@ -84,6 +85,10 @@
             $this.tbody = $('<tbody></tbody>');
             $this.append($this.tbody);
         }
+
+        if ($this.options.sort) {
+            updateSortableIcon($this);
+        }
     }
 
     function parseColumns($table) {
@@ -94,13 +99,14 @@
             var col_name = $th.data('col');
 			var col_visible = ($th.attr('visible') == 'false') ? false : true;
             var col_align = $th.data('align');
+            var col_sort = $th.data('sortable');
 
 			columns.push({
                 name: col_name,
                 label: $th.text(),
                 align: col_align,
                 format: $th.data('format'),
-                sort: $th.data('sort'),
+                sort: col_sort,
                 summary: initSummary($th.data('summary')),
                 visible: col_visible,
                 process_method: getCustomFunction($table.options['process_' + col_name]),
@@ -109,6 +115,11 @@
 
             if (col_align) {
                 $th.css('text-align', col_align);
+            }
+
+            if (col_sort || col_sort == '') {
+                //$th.html('<a href="#" sort="'+col_name+'">'+$th.text()+'</a>');
+                $th.html('<a href="#">'+$th.text()+'</a>');
             }
 		});
 
@@ -130,7 +141,8 @@
 	}
 
     function load($this, page) {
-        var api_url = (page) ? ($this.options.url+'?page='+page) : $this.options.url;
+        //var api_url = (page) ? ($this.options.url+'?page='+page) : $this.options.url;
+        var api_url = makeApiUrl($this, page);
 
         // trigger loading data from api
         $this.trigger('loading');
@@ -165,7 +177,6 @@
             // pagination
             if ($this.options.pagination) {
                 renderPagination($this, object_get(results, $this.options.meta));
-                bindEvents($this);
             }
 
             // trigger finish event
@@ -180,14 +191,55 @@
         });
     }
 
+    function makeApiUrl($this, page)
+    {
+        var parameters = '';
+
+
+        // sort
+        parameters += $this.options.sort ? 'sort='+$this.options.sort : '';
+
+        // filter
+        parameters += $this.options.filter ? '&filter='+$this.options.filter : '';
+
+        // search
+        parameters += $this.options.search ? '&q='+$this.options.search : '';
+
+        // page
+        parameters += (page) ? '&page='+page : '';
+
+        return $this.options.url + '?' + parameters;
+    }
+
     function bindEvents($this) {
-        if ($this.options.pagination) {
-            $($this.options.pagination+' .pagination').on('click', 'a', function(e) {
-                var page = $(e.target).attr('href');
-                load($this, page.replace('#',''));
-                e.preventDefault();
-            });
-        }
+
+        $this.find('th[data-sortable] a').on('click', function(e) {
+            e.preventDefault();
+            var $th = $(e.target).parent();
+
+            // get current sort order
+            var dir = $th.attr('data-sortable');
+            // reverse the sort order
+            dir = (dir === 'asc') ? 'desc' : 'asc';
+            //updateSortableIcon($this, $th, dir);
+
+            $this.options.sort = ((dir === 'desc') ? '-' : '') + $th.data('col');
+            updateSortableIcon($this);
+            load($this);
+        });
+    }
+
+    //function updateSortableIcon($this, $th, dir) {
+    function updateSortableIcon($this) {
+        // remove direction value from all other th[data-sortable]
+        //$this.find('th').attr('data-sortable', '');
+        // set it back to the th[data-sortable]
+        //$th.attr('data-sortable', dir);
+        var sort = $this.options.sort;
+        var dir = (sort[0] === '-') ? 'desc' : 'asc';
+        var col = sort.replace('-', '');
+        $this.find('th').attr('data-sortable', '');
+        $this.find('th[data-col='+col+']').attr('data-sortable', dir);
     }
 
     function clearRows($this) {
@@ -343,6 +395,17 @@
             console.log('Pagination element ("'+ $this.options.pagination+'") not found. Please specify a correct pagination element.');
         } else {
             $($this.options.pagination).html(pagination);
+            bindPaginationEvents($this);
+        }
+    }
+
+    function bindPaginationEvents($this) {
+        if ($this.options.pagination) {
+            $($this.options.pagination+' .pagination').on('click', 'a', function(e) {
+                var page = $(e.target).attr('href');
+                load($this, page.replace('#',''));
+                e.preventDefault();
+            });
         }
     }
 
@@ -354,7 +417,7 @@
 
         for (var page = 1; page <= meta.pagination.total_pages; page++) {
             if (page == meta.pagination.current_page) {
-                out += getDisabledTextWrapper(page);
+                out += getActivePageWarpper(page);
             } else {
                 out += getPageLinkWrapper(makeLink(meta, page), page);
             }
