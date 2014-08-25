@@ -29,6 +29,7 @@
 			var $this = $(this);	// this table
 
 			$this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
+            $this.templates = $.extend($.fn.ajaxTable.templates);
 
             init($this);
 
@@ -53,10 +54,23 @@
         sort: null,
 		showFooter : false,
 		showSettingsButton : false,
-		pagination : false, // pagination element to be used or false to disable pagination
+		pagination : false,         // pagination element to be used or false to disable pagination
         paginationFunction: null,   // custom pagination function
+        paginationInfo: true,       // pagination info element to be used or false to disable it
 		page_size : 10
 	};
+
+    $.fn.ajaxTable.templates = {
+        'table' : {
+            'row_number' : '<td class="align-right">{row_no}</td>',
+            'column' : '<td{class}>{value}</td>',
+        },
+        'setting_button' : {
+            'label' : 'Show / hide columns'
+        },
+        'pagination' : {},
+        'pagination_info' : 'Showing <b>{start}</b> to <b>{end}</b> of <b>{total}</b> entries'
+    };
 
     function init($this) {
         $this.columns = parseColumns($this);
@@ -118,7 +132,6 @@
             }
 
             if (col_sort || col_sort == '') {
-                //$th.html('<a href="#" sort="'+col_name+'">'+$th.text()+'</a>');
                 $th.html('<a href="#">'+$th.text()+'</a>');
             }
 		});
@@ -148,6 +161,8 @@
         $this.trigger('loading');
 
         $.getJSON(api_url, function(results) {
+            var meta = object_get(results, $this.options.meta);
+
             // trigger data loaded event, start processing
             $this.trigger('loaded');
 
@@ -158,25 +173,19 @@
             $this.tbody.html(out);
 
             if ($this.options.showFooter) {
-                $this.tfoot = $this.find('tfoot');
-                if ($this.tfoot.length === 0 ) {
-                    $this.tfoot = $('<tfoot>&nbsp;</tfoot>');
-                }
-
-                out = renderFooter($this);
-                $this.tfoot.html(out);
+                $this.tfoot.html(renderFooter($this));
             }
 
             // hide columns that should not be visible
-            $.each($this.columns, function(idx, col) {
-                if ( ! col.visible) {
-                    toggleColumn($this, idx+1);
-                }
-            });
+            hideInvisibleColumns($this);
 
             // pagination
             if ($this.options.pagination) {
-                renderPagination($this, object_get(results, $this.options.meta));
+                renderPagination($this, meta);
+            }
+            // pagination info
+            if ($this.options.paginationInfo) {
+                renderPaginationInfo($this, meta);
             }
 
             // trigger finish event
@@ -194,7 +203,6 @@
     function makeApiUrl($this, page)
     {
         var parameters = '';
-
 
         // sort
         parameters += $this.options.sort ? 'sort='+$this.options.sort : '';
@@ -224,7 +232,6 @@
             var dir = $th.attr('data-sortable');
             // reverse the sort order
             dir = (dir === 'asc') ? 'desc' : 'asc';
-            //updateSortableIcon($this, $th, dir);
 
             $this.options.sort = ((dir === 'desc') ? '-' : '') + $th.data('col');
             updateSortableIcon($this);
@@ -232,16 +239,13 @@
         });
     }
 
-    //function updateSortableIcon($this, $th, dir) {
     function updateSortableIcon($this) {
-        // remove direction value from all other th[data-sortable]
-        //$this.find('th').attr('data-sortable', '');
-        // set it back to the th[data-sortable]
-        //$th.attr('data-sortable', dir);
         var sort = $this.options.sort;
         var dir = (sort[0] === '-') ? 'desc' : 'asc';
         var col = sort.replace('-', '');
+        // remove direction value from all other th[data-sortable]
         $this.find('th').attr('data-sortable', '');
+        // set it back to the th[data-sortable]
         $this.find('th[data-col='+col+']').attr('data-sortable', dir);
     }
 
@@ -263,9 +267,8 @@
 
 			out += '<tr>';
 			$.each($table.columns, function(idx, col) {
-				//out += (col.name == '_row_number') ? '<td class="align-right">'+(key+1)+'</td>' : renderColumn($table, col, rowData);
 				out += (col.name == '_row_number')
-                    ? renderRowNo(meta.pagination, key+1)
+                    ? renderRowNo($table, meta.pagination, key+1)
                     : renderColumn($table, col, rowData);
 			});
 			out += '</tr>\n';
@@ -276,9 +279,9 @@
 		return out;
 	}
 
-    function renderRowNo(pagination, row) {
+    function renderRowNo($table, pagination, row) {
         var rowNo = (pagination.current_page - 1) * pagination.per_page + row;
-        return '<td class="align-right">' + rowNo + '</td>';
+        return $table.templates['table']['row_number'].replace('{row_no}', rowNo);
     }
 
 	function renderColumn($table, col, rowData) {
@@ -359,9 +362,8 @@
 
 	function attachSettingButton($table) {
 		var btn = '<div class="ajaxtable-settings pull-right">';
-		// btn += '<button type="button" class="btn btn-mini" data-toggle="button">';
 		btn += 	'<div class="dropdown">';
-		btn += 		'<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-th-list"></i> Settings</a>';
+		btn += 		'<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-th-list"></i> '+$table.templates['setting_button']['label']+'</a>';
 		btn += 		'<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dLabel">';
 		for (var i = 0; i < $table.columns.length; i++) {
 			if ($.trim($table.columns[i].label) == '') continue;
@@ -383,7 +385,15 @@
 		});
 	}
 
-	function toggleColumn($table, nth) {
+    function hideInvisibleColumns($this) {
+        $.each($this.columns, function(idx, col) {
+            if ( ! col.visible) {
+                toggleColumn($this, idx+1);
+            }
+        });
+    }
+
+    function toggleColumn($table, nth) {
 		$table.find('th:nth-child('+(nth)+')').toggle('fast', 'linear');
 		$table.find('td:nth-child('+(nth)+')').toggle('fast', 'linear');
 	}
@@ -400,6 +410,19 @@
             $($this.options.pagination).html(pagination);
             bindPaginationEvents($this);
         }
+    }
+
+    function renderPaginationInfo($this, meta) {
+        if ($this.options.paginationInfo === false) return;
+
+        var pg = meta.pagination;
+        var start = (pg.current_page-1) * pg.per_page +1;
+        var out = str_replace(
+            ['{start}', '{end}', '{total}'],
+            [start, start + pg.count -1, pg.total],
+            $this.templates['pagination_info']
+        );
+        $($this.options.paginationInfo).html(out);
     }
 
     function bindPaginationEvents($this) {
@@ -456,10 +479,20 @@
         return out;
     }
 
+    function str_replace(search, replace, subject) {
+        var result = subject;
+
+        for (var i = 0; i < search.length; i++) {
+            result = result.replace(search[i], replace[i]);
+        }
+
+        return result;
+    }
+
     function getPageLinkWrapper(url, page, rel) {
         rel = (!rel) ? '' : ' rel="'+rel+'"';
 
-        return '<li><a href="' + url + '"' + rel + '>' + page + '</a></li>';
+        return '<li><a href="' + url + '">' + page + '</a></li>';
         // template: '<li><a href="{url}"{rel}>{page}</a></li>';
     }
 
