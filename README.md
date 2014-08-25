@@ -73,14 +73,16 @@ The `meta` key is the key name pointed to metadata info of the data records from
 Options
 -------
 - `url` | `data-url` -- the api url to request for the table data.
-- `key`
+- `key` | `data-key`
 - `meta`
 
-- `showFooter`
+- `showFooter` : __false__ | true
 
-- `showSettingsButton`
-- `pagination`
-- `paginationFunction`
+- `showSettingsButton` : __false__ | true
+- `pagination` : __false__ | true | 'element'
+- `paginationFunction` : __null__ | function
+- `paginationInfo` : __true__ | false | 'element'
+- `page_size` : 10 -- default per page size
 
 
 Events
