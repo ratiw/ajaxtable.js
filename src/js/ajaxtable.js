@@ -398,6 +398,9 @@
 		$table.find('td:nth-child('+(nth)+')').toggle('fast', 'linear');
 	}
 
+    //
+    // --- Pagination ---
+    //
     function renderPagination($this, meta) {
         var customPagination = getCustomFunction($this.options.paginationFunction);
         var pagination = (customPagination === null)
@@ -435,35 +438,133 @@
         }
     }
 
+    // adapted from Laravel 4's Pagination features
     function showDefaultPagination(meta) {
         var out = '';
+        var lastPage = meta.pagination.total_pages;
 
-        // Previous
-        out += getPrevious(meta, page);
+        if (lastPage < 13) {
+            out = getPageRange(1, lastPage, meta);
+        } else {
+            out = getPageSlider(meta);
+        }
 
-        for (var page = 1; page <= meta.pagination.total_pages; page++) {
+        return '<ul class="pagination">' + getPrevious(meta) + out + getNext(meta) + '</ul>';
+    }
+
+    function getPageRange(start, end, meta) {
+        var out = '';
+
+        for (var page = start; page <= end; page++) {
             if (page == meta.pagination.current_page) {
                 out += getActivePageWarpper(page);
             } else {
                 out += getPageLinkWrapper(makeLink(meta, page), page);
             }
         }
-        // Next
-        out += getNext(meta);
 
-        return '<ul class="pagination">' + out + '</ul>';
+        return out;
+    }
+
+    function getPageSlider(meta) {
+        var window = 6;
+        var currentPage = meta.pagination.current_page;
+        var lastPage = meta.pagination.total_pages;
+        var content = '';
+
+        if (currentPage <= window) {
+            var ending = getFinish(meta);
+            return getPageRange(1, window + 2, meta) + ending;
+        }
+        else if (currentPage >= lastPage - window) {
+            var start = lastPage - 8;
+            content = getPageRange(start, lastPage, meta);
+            return getStart(meta) + content;
+        }
+        else {
+            content = getAdjacentRange(meta);
+            return getStart(meta) + content + getFinish(meta);
+        }
+    }
+
+    function getAdjacentRange(meta) {
+        var currentPage = meta.pagination.current_page;
+
+        return getPageRange(currentPage - 3, currentPage + 3, meta);
+    }
+
+    function getStart(meta) {
+        return getPageRange(1, 2, meta) + getDots();
+    }
+
+    function getFinish(meta)
+    {
+        var lastPage = meta.pagination.total_pages;
+        var content = getPageRange(lastPage - 1, lastPage, meta);
+
+        return getDots() + content;
+    }
+
+    function getPrevious(meta) {
+        var page = meta.pagination.current_page;
+        if (page == 1) {
+            return getDisabledTextWrapper('&laquo;')
+        } else {
+            return getPageLinkWrapper(makeLink(meta, page-1), '&laquo;');
+        }
+
+    }
+
+    function getNext(meta) {
+        var page = meta.pagination.current_page;
+        if (page == meta.pagination.total_pages) {
+            return getDisabledTextWrapper('&raquo;');
+        } else {
+            return getPageLinkWrapper(makeLink(meta, page+1), '&raquo;');
+        }
+    }
+
+    function getDots() {
+        return getDisabledTextWrapper("...");
     }
 
     function makeLink(meta, page) {
         var param = [];
 
-        param['q'] = (meta.search == '') ? '' : 'q='+meta.search;
-        param['filter'] = (meta.filter == '') ? '' : 'filter='+meta.filter;
-        param['sort'] = (meta.sort == '') ? '' : 'sort='+meta.sort;
-        param['page'] = page;
+        param['q']      = (meta.search == '') ? '' : 'q=' + meta.search;
+        param['filter'] = (meta.filter == '') ? '' : 'filter=' + meta.filter;
+        param['sort']   = (meta.sort == '') ? '' : 'sort=' + meta.sort;
+        param['page']   = page;
 
         //return meta.base_url + '?' + makeAttributes(param, '=', '&');
         return '#'+page;
+    }
+
+    function getPageLinkWrapper(url, page, rel) {
+        rel = (!rel) ? '' : ' rel="'+rel+'"';
+
+        return '<li><a href="' + url + '">' + page + '</a></li>';
+        // template: '<li><a href="{url}"{rel}>{page}</a></li>';
+    }
+
+    function getDisabledTextWrapper(text) {
+        return '<li class="disabled"><span>' + text + '</span></li>';
+    }
+
+    function getActivePageWarpper(text) {
+        return '<li class="active"><span>' + text + '</span></li>';
+    }
+
+    function object_get(obj, key) {
+        if (!key || $.trim(key) == '') return obj;
+        $.each(key.split('.'), function(idx, seg) {
+            if (typeof obj !== 'object' || obj[seg] === undefined) {
+                obj = undefined;
+                return obj;
+            }
+            obj = obj[seg];
+        });
+        return obj;
     }
 
     function makeAttributes(arr, connector, separator) {
@@ -489,51 +590,6 @@
         return result;
     }
 
-    function getPageLinkWrapper(url, page, rel) {
-        rel = (!rel) ? '' : ' rel="'+rel+'"';
-
-        return '<li><a href="' + url + '">' + page + '</a></li>';
-        // template: '<li><a href="{url}"{rel}>{page}</a></li>';
-    }
-
-    function getDisabledTextWrapper(text) {
-        return '<li class="disabled"><span>' + text + '</span></li>';
-    }
-
-    function getActivePageWarpper(text) {
-        return '<li class="active"><span>' + text + '</span></li>';
-    }
-
-    function getPrevious(meta) {
-        var page = meta.pagination.current_page;
-        if (page == 1) {
-            return getDisabledTextWrapper('&laquo;')
-        } else {
-            return getPageLinkWrapper(makeLink(meta, page-1), '&laquo;');
-        }
-
-    }
-
-    function getNext(meta) {
-        var page = meta.pagination.current_page;
-        if (page == meta.pagination.total_pages) {
-            return getDisabledTextWrapper('&raquo;');
-        } else {
-            return getPageLinkWrapper(makeLink(meta, page+1), '&raquo;');
-        }
-    }
-
-    function object_get(obj, key) {
-        if (!key || $.trim(key) == '') return obj;
-        $.each(key.split('.'), function(idx, seg) {
-            if (typeof obj !== 'object' || obj[seg] === undefined) {
-                obj = undefined;
-                return obj;
-            }
-            obj = obj[seg];
-        });
-        return obj;
-    }
 })(jQuery);
 /*
  * TODO:
