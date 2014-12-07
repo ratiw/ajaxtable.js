@@ -220,3 +220,26 @@ additionally, you can easily calculate the grand total, like so.
     });
 ```
 
+Creating Buttons Column
+----
+You can use the custom column feature to create Buttons column as in the following example.
+Please note that `FontAwesome` is used to display the button icons.
+
+```html
+...
+<tr data-col="actions">&nbsp;</tr>
+...
+```
+
+```js
+$('table.ajaxtable').ajaxTable({
+    ...
+    process_actions: function(column, data) {
+        var url = '/'+data.id;
+        var btns = '<a href="'+url+'/edit'+'" class="btn btn-xs btn-icon btn-circle btn-warning">';
+        btns += '<i class="fa fa-pencil"></i></a> ';
+        btns += '<a class="btn btn-xs btn-danger btn-icon btn-circle"><i class="fa fa-close"></i></a>';
+        return btns;
+    }
+});
+```
