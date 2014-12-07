@@ -1,69 +1,70 @@
 /*
-// required:
-//	 - date.js -- for date functions
-//   - accounting.js -- for number format functions
-//
-// $('table.report').ajaxTable({
-// 	api: '...',
-//  showFooter: true/(false),
-//  showSettingsButton: true/(false)
-//  pagination: true/(false)
-//  page_size: 20
-// });
-//
-// events:
-//    - loading
-//	  - loaded
-//    - before_row
-//	  - after_row
-//    - finished
-//	  - error
-*/
+ // required:
+ //	 - date.js -- for date functions
+ //   - accounting.js -- for number format functions
+ //
+ // $('table.report').ajaxTable({
+ // 	api: '...',
+ //  showFooter: true/(false),
+ //  showSettingsButton: true/(false)
+ //  pagination: true/(false)
+ //  page_size: 20
+ // });
+ //
+ // events:
+ //    - loading
+ //	  - loaded
+ //    - before_row
+ //	  - after_row
+ //    - finished
+ //	  - error
+ */
 
 ;(function( $ )
 {
-	$.fn.ajaxTable = function(options) {
+    $.fn.ajaxTable = function(options) {
 
-		return this.each(function() {
+        return this.each(function() {
 
-			var $this = $(this);	// this table
+            var $this = $(this);	// this table
 
-			$this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
+            $this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
             $this.templates = $.extend($.fn.ajaxTable.templates);
 
             init($this);
 
             // setting buttons
-			$this.wrap('<div class="ajaxtable-wrapper"></div>');
-			if ($this.options.showSettingsButton) {
-				attachSettingButton($this);
-			}
+            $this.wrap('<div class="ajaxtable-wrapper"></div>');
+
+            if ($this.options.showSettingsButton) {
+                attachSettingButton($this);
+            }
 
             bindEvents($this);
 
             load($this);
         });
-	};
+    };
 
-	$.fn.ajaxTable.defaults = {
-		url : null,         // URL of the remote data request
+    $.fn.ajaxTable.defaults = {
+        url : null,         // URL of the remote data request
         key : 'data',       // name of the data element in JSON data returned from the given URL
         meta: 'meta',       // name of the meta element in JSON data returned from the given URL
         search: null,
         filter: null,
         sort: null,
-		showFooter : false,
-		showSettingsButton : false,
-		pagination : false,         // pagination element to be used or false to disable pagination
+        showFooter : false,
+        showSettingsButton : false,
+        pagination : false,         // pagination element to be used or false to disable pagination
         paginationFunction: null,   // custom pagination function
         paginationInfo: true,       // pagination info element to be used or false to disable it
-		page_size : 10
-	};
+        page_size : 10
+    };
 
     $.fn.ajaxTable.templates = {
         'table' : {
             'row_number' : '<td class="align-right">{row_no}</td>',
-            'column' : '<td{class}>{value}</td>',
+            'column' : '<td{class}>{value}</td>'
         },
         'setting_button' : {
             'label' : 'Show / hide columns'
@@ -74,7 +75,7 @@
 
     function init($this) {
         $this.columns = parseColumns($this);
-        console.log('columns: ', $this.columns);
+        //console.log('columns: ', $this.columns);
 
         if (! $this.options.url) {
             $this.options.url = $this.data('url');
@@ -106,16 +107,16 @@
     }
 
     function parseColumns($table) {
-		var columns = [];
+        var columns = [];
 
-		$.each($table.find('thead th'), function(idx, th) {
-			var $th = $(th);
+        $.each($table.find('thead th'), function(idx, th) {
+            var $th = $(th);
             var col_name = $th.data('col');
-			var col_visible = ($th.attr('visible') == 'false') ? false : true;
+            var col_visible = ($th.attr('visible') == 'false') ? false : true;
             var col_align = $th.data('align');
             var col_sort = $th.data('sortable');
 
-			columns.push({
+            columns.push({
                 name: col_name,
                 label: $th.text(),
                 align: col_align,
@@ -125,7 +126,7 @@
                 visible: col_visible,
                 process_method: getCustomFunction($table.options['process_' + col_name]),
                 format_method: getCustomFunction($table.options['format_' + col_name])
-			});
+            });
 
             if (col_align) {
                 $th.css('text-align', col_align);
@@ -134,31 +135,31 @@
             if (col_sort || col_sort == '') {
                 $th.html('<a href="#">'+$th.text()+'</a>');
             }
-		});
+        });
 
-		return columns;
-	}
+        return columns;
+    }
 
     function getCustomFunction(method) {
         return (method && typeof method === 'function') ? method : null;
     }
 
-	function initSummary(func) {
-		if (func === undefined) return func;
+    function initSummary(func) {
+        if (func === undefined) return func;
 
-		return {
-			'function': func,
-			'sum': 0,
-			'count': 0
-		};
-	}
+        return {
+            'function': func,
+            'sum': 0,
+            'count': 0
+        };
+    }
 
     function load($this, page) {
-        //var api_url = (page) ? ($this.options.url+'?page='+page) : $this.options.url;
         var api_url = makeApiUrl($this, page);
 
         // trigger loading data from api
         $this.trigger('loading');
+        $this.addClass('spinner');
 
         $.getJSON(api_url, function(results) {
             var meta = object_get(results, $this.options.meta);
@@ -197,6 +198,9 @@
 
             var out = '<tr><td colspan="'+$this.columns.length+'">'+results.responseText+'</td></tr>';
             $this.find('tbody').html(out);
+        }).always(function() {
+            //$('.spinner-mask').removeClass('spinner');
+            $this.removeClass('spinner');
         });
     }
 
@@ -254,136 +258,136 @@
     }
 
     function renderRow($table, results) {
-		var out = '';
+        var out = '';
 
         var data = object_get(results, $table.options.key);
         var meta = object_get(results, $table.options.meta);
 
-		$.each(data, function(key, rowData) {
+        $.each(data, function(key, rowData) {
 
-			// trigger processing event for each row of data,
-			// passing the row data to the event listeners
-			$table.trigger('before_row', rowData);
+            // trigger processing event for each row of data,
+            // passing the row data to the event listeners
+            $table.trigger('before_row', rowData);
 
-			out += '<tr>';
-			$.each($table.columns, function(idx, col) {
-				out += (col.name == '_row_number')
+            out += '<tr>';
+            $.each($table.columns, function(idx, col) {
+                out += (col.name == '_row_number')
                     ? renderRowNo($table, meta.pagination, key+1)
                     : renderColumn($table, col, rowData);
-			});
-			out += '</tr>\n';
+            });
+            out += '</tr>\n';
 
-			$table.trigger('after_row', this);
-		});
+            $table.trigger('after_row', this);
+        });
 
-		return out;
-	}
+        return out;
+    }
 
     function renderRowNo($table, pagination, row) {
         var rowNo = (pagination.current_page - 1) * pagination.per_page + row;
         return $table.templates['table']['row_number'].replace('{row_no}', rowNo);
     }
 
-	function renderColumn($table, col, rowData) {
+    function renderColumn($table, col, rowData) {
         var value = col.process_method ? col.process_method(col, rowData) : rowData[col.name];
 
-		if (col.summary) {
-			col.summary.sum += parseFloat(value);
-			col.summary.count += 1;
-		}
+        if (col.summary) {
+            col.summary.sum += parseFloat(value);
+            col.summary.count += 1;
+        }
 
         ;value = col.format_method ? col.format_method(col, rowData) : formatValue(col.format, value);
 
-		var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
+        var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
 
-		return '<td'+cls+'>'+value+'</td>';
-	}
+        return '<td'+cls+'>'+value+'</td>';
+    }
 
-	function renderFooter($table) {
-		var out = '<tr>';
-		$.each($table.columns, function(idx, col) {
-			var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
-			out += '<td'+cls+'>' + (col.summary ? getSummaryValue(col.summary, col.format) : '&nbsp;') + '</td>';
-		});
-		out += '</tr>';
+    function renderFooter($table) {
+        var out = '<tr>';
+        $.each($table.columns, function(idx, col) {
+            var cls = (typeof col.align === 'undefined') ? '' : ' class="align-'+col.align+'"';
+            out += '<td'+cls+'>' + (col.summary ? getSummaryValue(col.summary, col.format) : '&nbsp;') + '</td>';
+        });
+        out += '</tr>';
 
-		return out;
-	}
+        return out;
+    }
 
-	function getSummaryValue(sum_col, format) {
-		var value = '';
-		switch (sum_col.function) {
-			case 'sum':
-				value = sum_col.sum;
-				break;
-			case 'count':
-				value = sum_col.count;
-				break;
-			case 'avg':
-				value = sum_col.sum / sum_col.count;
-				break;
-			default:
-				return '';
-		}
-		return formatValue(format, value);
-	}
+    function getSummaryValue(sum_col, format) {
+        var value = '';
+        switch (sum_col.function) {
+            case 'sum':
+                value = sum_col.sum;
+                break;
+            case 'count':
+                value = sum_col.count;
+                break;
+            case 'avg':
+                value = sum_col.sum / sum_col.count;
+                break;
+            default:
+                return '';
+        }
+        return formatValue(format, value);
+    }
 
-	function formatValue(format, value) {
-		var fmt = (format) ? format.split(':') : [undefined];
-		switch (fmt[0]) {
-			case 'money':
-			case 'number':
-				value = accounting.formatNumber(value, 2);
-				break;
-			case 'date':
-				break;
-			case 'time':
-				value = Date.parse(value).toString('HH:mm');
-				break;
-			case 'hours':
-				if (value == '00:00' || value == '00:00:00') {
-					value = '';
-				} else {
-					var hr = value.split(':');
-					value = hr[0]+':'+hr[1];
-				}
-				break;
-			case 'datetime':
-			case 'timestamp':
-				break;
-			default: 	// template with {value} in it
-				if (fmt[0] && fmt[0] !== '') {
-					value = fmt[0].replace('{value}', value);
-				}
-		}
+    function formatValue(format, value) {
+        var fmt = (format) ? format.split(':') : [undefined];
+        switch (fmt[0]) {
+            case 'money':
+            case 'number':
+                value = accounting.formatNumber(value, 2);
+                break;
+            case 'date':
+                break;
+            case 'time':
+                value = Date.parse(value).toString('HH:mm');
+                break;
+            case 'hours':
+                if (value == '00:00' || value == '00:00:00') {
+                    value = '';
+                } else {
+                    var hr = value.split(':');
+                    value = hr[0]+':'+hr[1];
+                }
+                break;
+            case 'datetime':
+            case 'timestamp':
+                break;
+            default: 	// template with {value} in it
+                if (fmt[0] && fmt[0] !== '') {
+                    value = fmt[0].replace('{value}', value);
+                }
+        }
 
-		return value;
-	}
+        return value;
+    }
 
-	function attachSettingButton($table) {
-		var btn = '<div class="ajaxtable-settings pull-right">';
-		btn += 	'<div class="dropdown">';
-		btn += 		'<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-th-list"></i> '+$table.templates['setting_button']['label']+'</a>';
-		btn += 		'<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dLabel">';
-		for (var i = 0; i < $table.columns.length; i++) {
-			if ($.trim($table.columns[i].label) == '') continue;
-			btn += '<li><label class="checkbox">';
-			btn += '<input type="checkbox" name="toggle-column-'+$table.columns[i].name+'" ';
-			btn += 'class="toggle-column" col-id="'+i+'"'+($table.columns[i].visible ? ' checked' : '')+'>';
-			btn += $table.columns[i].label;
-			btn += '</label></li>';
-		}
-		btn += 		'</ul>';
-		btn += 	'</div>';
-		btn += '</div>';
+    function attachSettingButton($table) {
+        var btn = '<div class="ajaxtable-settings pull-right">';
+        btn += 	'<div class="dropdown">';
+        btn += 		'<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-th-list"></i> '+$table.templates['setting_button']['label']+'</a>';
+        btn += 		'<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dLabel">';
+        for (var i = 0; i < $table.columns.length; i++) {
+            if ($.trim($table.columns[i].label) == '') continue;
+            btn += '<li><label class="checkbox">';
+            btn += '<input type="checkbox" name="toggle-column-'+$table.columns[i].name+'" ';
+            btn += 'class="toggle-column" col-id="'+i+'"'+($table.columns[i].visible ? ' checked' : '')+'>';
+            btn += $table.columns[i].label;
+            btn += '</label></li>';
+        }
+        btn += 		'</ul>';
+        btn += 	'</div>';
+        btn += '</div>';
 
-		$table.before(btn);
+        $table.before(btn);
 
-		$('div.ajaxtable-settings input.toggle-column').on('click', function(e) {
-			var nth = parseInt($(this).attr('col-id')) + 1;
-			toggleColumn($table, nth);
-		});
-	}
+        $('div.ajaxtable-settings input.toggle-column').on('click', function(e) {
+            var nth = parseInt($(this).attr('col-id')) + 1;
+            toggleColumn($table, nth);
+        });
+    }
 
     function hideInvisibleColumns($this) {
         $.each($this.columns, function(idx, col) {
@@ -394,9 +398,9 @@
     }
 
     function toggleColumn($table, nth) {
-		$table.find('th:nth-child('+(nth)+')').toggle('fast', 'linear');
-		$table.find('td:nth-child('+(nth)+')').toggle('fast', 'linear');
-	}
+        $table.find('th:nth-child('+(nth)+')').toggle('fast', 'linear');
+        $table.find('td:nth-child('+(nth)+')').toggle('fast', 'linear');
+    }
 
     //
     // --- Pagination ---
