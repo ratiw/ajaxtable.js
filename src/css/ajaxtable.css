@@ -35,6 +35,15 @@ table th[data-sortable="desc"] a {
     background-size: 8px;
     padding-left: 13px;
 }
+table td.align-center, table th.align-center {
+    text-align: center;
+}
+table td.align-left, table th.align-left {
+    text-align: left;
+}
+table td.align-right, table th.align-right {
+    text-align: right;
+}
 .pagination-wrapper {
     font-size: 0.9em;
 }
