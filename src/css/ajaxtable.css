@@ -35,8 +35,11 @@ table th[data-sortable="desc"] a {
     background-size: 8px;
     padding-left: 13px;
 }
-div.pagination-wrapper {
+.pagination-wrapper {
     font-size: 0.9em;
+}
+.pagination-wrapper .pagination {
+    margin: 0px;
 }
 .ajaxtable-settings ul.dropdown-menu li {
     margin-left: 35px;
