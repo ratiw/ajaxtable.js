@@ -88,7 +88,7 @@ Options
 Events
 ------
 - `loading` -- occurs just before requesting the data from the given api url.
-- `loaded` -- occurs after the requested data has been successfully retrieved and before the `processing` event.
+- `loaded` -- occurs after the requested data has been successfully retrieved and before the processing events.
 - `error` -- occurs when the data could not be retrieved from the given api url.
 - `before_row` -- occurs just before the processing of each data row. The current row of data is passing as an argument.
 - `after_row` -- occurs just after every columns has been processed.
