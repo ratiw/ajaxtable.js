@@ -10,7 +10,7 @@ Just provide the html table header with column name attribute `data-col` (with o
 
 html
 ```html
-<table class="report">
+<table class="ajaxtable">
 <thead>
     <th data-col="_row_number">&nbsp;</th>
     <th data-col="emp_code">Code</th>
@@ -23,7 +23,7 @@ html
 
 javascript  
 ```js
-$('table.report').ajaxTable({
+$('table.ajaxtable').ajaxTable({
     url: 'url_to_request_table_data',
     showFooter: true/(false),
     showSettingsButton: true/(false)
@@ -33,12 +33,12 @@ $('table.report').ajaxTable({
 Or you can specify the url to the API inside the `<table>` tag like so,
 
 ```html
-<table class="report" data-url="http://api.example.com/report" data-key"items">
+<table class="ajaxtable" data-url="http://api.example.com/report" data-key"items">
 ...
 </table>
 
 <script>
-    $('table.report').ajaxTable();
+    $('table.ajaxtable').ajaxTable();
 </script>
 ```
 
@@ -104,7 +104,7 @@ Special Columns
 Column Processing
 -----------------
 ```js
-$('table.report').ajaxTable({
+$('table.ajaxtable').ajaxTable({
     process_emp_dept: function(col, value) {
         return '<strong>'+value+'</strong>';
     }
@@ -129,7 +129,7 @@ NOTE: In order to use this option, your remote API must also support sortable op
 You can specify any column is sortable by specifying `data-sortable` attribute on the table column header `th` element like so,
 
 ```html
-<table class="report">
+<table class="ajaxtable">
 <thead>
     <th data-col="_row_number">&nbsp;</th>
     <th data-col="emp_code" data-sortable="asc">Code</th>
@@ -152,7 +152,7 @@ Please note the `-` sign in front of `emp_code`, this denotes that "descending s
 Default sort option can be specify as the value of `data-sortable` attribute in the HTML or it can be specify in the `sort` option in the JavaScript.
 
 ```javascript
-$('table').ajaxTable({ sort: -emp_code });
+$('table.ajaxtable').ajaxTable({ sort: -emp_code });
 ```
 
 Format Options
@@ -170,7 +170,7 @@ Custom Column Format
 You can define custom format for a given column as a javascript callback function by defining the option name as `format_<column_name>` and declare it as a function with two arguments. Both arguments will be passed to your custom function, the first one being the current column properties and the second one is the value of the current column of the current row.
 
 ```js
-$('table.report').ajaxTable({
+$('table.ajavtable').ajaxTable({
     format_emp_dept: function(col, value) {
         return '<strong>'+value+'</strong>';
     }
@@ -196,7 +196,7 @@ define calculated column in the html table as another column.
 define the custom column processing callback function in `ajaxTable()` option.
 
 ```js
-$('table.report').ajaxTable({
+$('table.ajaxtable').ajaxTable({
     ...
     process_total: function(col, data) {
         // calculate the value and store it in the row's data
@@ -211,11 +211,11 @@ additionally, you can easily calculate the grand total, like so.
 
 ```js
     var grand_total = 0;
-    $('table.report').on('after_row', function(event, data) {
+    $('table.ajaxtable').on('after_row', function(event, data) {
         grand_total += data.total;
     });
 
-    $('table.report').on('finished', function() {
+    $('table.ajaxtable').on('finished', function() {
         console.log('Grand Total = ' + grand_total);
     });
 ```
