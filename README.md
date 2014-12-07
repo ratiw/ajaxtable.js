@@ -223,7 +223,7 @@ additionally, you can easily calculate the grand total, like so.
 Creating Buttons Column
 ----
 You can use the custom column feature to create Buttons column as in the following example.
-Please note that `FontAwesome` is used to display the button icons.
+Please note that Twitter's `Bootstrap` and `FontAwesome` is used to display the button icons.
 
 ```html
 ...
