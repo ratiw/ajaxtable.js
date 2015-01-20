@@ -75,7 +75,7 @@
 
     function init($this) {
         $this.columns = parseColumns($this);
-        // console.log('columns: ', $this.columns);
+        //console.log('columns: ', $this.columns);
 
         if (! $this.options.url) {
             $this.options.url = $this.data('url');
@@ -282,7 +282,11 @@
             // passing the row data to the event listeners
             $table.trigger('before_row', rowData);
 
-            out += '<tr>';
+            // call on_render_row method (if defined) to allow setting
+            // custom attributes to the current row
+            attr = (method = getCustomFunction($table.options['on_render_row'])) ? method(rowData) : '';
+
+            out += '<tr '+attr+'>';
             $.each($table.columns, function(idx, col) {
                 out += (col.name == '_row_number')
                     ? renderRowNo($table, meta.pagination, key+1)
