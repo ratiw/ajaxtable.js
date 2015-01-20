@@ -73,7 +73,7 @@ The `meta` key is the key name pointed to metadata info of the data records from
 Options
 -------
 - `url` | `data-url` -- the api url to request for the table data.
-- `key` | `data-key`
+- `key` | `data-key` -- key name of the data in the JSON returned from the url request
 - `meta`
 
 - `showFooter` : __false__ | true
@@ -117,14 +117,15 @@ Optional Attributes
 - `data-align` : __left__ | center | right
 - `data-format` : *see format options*
 - `data-sortable` : [asc | desc]
+- `data-sortkey` : *see below* 
 - `data-summary` : sum | count | avg
 - `visible` : __true__ | false
 
 Sortable Options
 ----------------
-```
-NOTE: In order to use this option, your remote API must also support sortable option. The sorting is never done on the client side.
-```
+
+> NOTE: In order to use this option, your remote API must also support sortable option. 
+> The sorting is never done on the client side.
 
 You can specify any column is sortable by specifying `data-sortable` attribute on the table column header `th` element like so,
 
@@ -154,6 +155,12 @@ Default sort option can be specify as the value of `data-sortable` attribute in 
 ```javascript
 $('table.ajaxtable').ajaxTable({ sort: -emp_code });
 ```
+
+Sort Key Option
+---------------
+By default when sending sort option to the remote API, the column name specified in `data-col`
+is used. But in case the sort key is different, you can manually specify it in the `data-sortkey`
+option.
 
 Format Options
 --------------
