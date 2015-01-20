@@ -75,7 +75,7 @@
 
     function init($this) {
         $this.columns = parseColumns($this);
-        //console.log('columns: ', $this.columns);
+        console.log('columns: ', $this.columns);
 
         if (! $this.options.url) {
             $this.options.url = $this.data('url');
@@ -110,11 +110,12 @@
         var columns = [];
 
         $.each($table.find('thead th'), function(idx, th) {
-            var $th = $(th);
-            var col_name = $th.data('col');
-            var col_visible = ($th.attr('visible') == 'false') ? false : true;
-            var col_align = $th.data('align');
-            var col_sort = $th.data('sortable');
+            var $th = $(th),
+                col_name = $th.data('col'),
+                col_visible = ($th.attr('visible') == 'false') ? false : true,
+                col_align = $th.data('align'),
+                col_sort = $th.data('sortable'),
+                col_sortkey = $th.data('sortkey');
 
             columns.push({
                 name: col_name,
@@ -122,6 +123,7 @@
                 align: col_align,
                 format: $th.data('format'),
                 sort: col_sort,
+                sortkey: col_sortkey ? col_sortkey : col_name,
                 summary: initSummary($th.data('summary')),
                 visible: col_visible,
                 process_method: getCustomFunction($table.options['process_' + col_name]),
@@ -156,6 +158,7 @@
 
     function load($this, page) {
         var api_url = makeApiUrl($this, page);
+        console.log('url: ', api_url);
 
         // trigger loading data from api
         $this.trigger('loading');
@@ -234,23 +237,34 @@
 
             // get current sort order
             var dir = $th.attr('data-sortable');
+
             // reverse the sort order
             dir = (dir === 'asc') ? 'desc' : 'asc';
 
-            $this.options.sort = ((dir === 'desc') ? '-' : '') + $th.data('col');
-            updateSortableIcon($this);
+            // find column data
+            var column = findColumnByName($this, $th.data('col'));
+
+            //$this.options.sort = ((dir === 'desc') ? '-' : '') + $th.data('col');
+            $this.options.sort = ((dir === 'desc') ? '-' : '') + column.sortkey;
+
+            updateSortableIcon($this, column.name);
             load($this);
         });
     }
 
-    function updateSortableIcon($this) {
+    function findColumnByName($this, name) {
+        for (var i=0; i < $this.columns.length; i++) {
+            if ($this.columns[i].name == name) return $this.columns[i];
+        }
+    }
+
+    function updateSortableIcon($this, colName) {
         var sort = $this.options.sort;
         var dir = (sort[0] === '-') ? 'desc' : 'asc';
-        var col = sort.replace('-', '');
         // remove direction value from all other th[data-sortable]
         $this.find('th').attr('data-sortable', '');
         // set it back to the th[data-sortable]
-        $this.find('th[data-col='+col+']').attr('data-sortable', dir);
+        $this.find('th[data-col='+colName+']').attr('data-sortable', dir);
     }
 
     function clearRows($this) {
