@@ -166,7 +166,7 @@ option.
 <table class="ajaxtable">
 <thead>
     <th data-col="_row_number">&nbsp;</th>
-    <th data-col="emp_code" data-sortable="asc" __data-sortkey__="staff.code">Code</th>
+    <th data-col="emp_code" data-sortable="asc" data-sortkey="staff.code">Code</th>
     <th data-col="emp_name" data-sortable>Name</th>
     <th data-col="emp_dept" data-sortable data-sortkey="department">Department</th>
 </thead>
