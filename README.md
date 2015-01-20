@@ -162,6 +162,17 @@ By default when sending sort option to the remote API, the column name specified
 is used. But in case the sort key is different, you can manually specify it in the `data-sortkey`
 option.
 
+```html
+<table class="ajaxtable">
+<thead>
+    <th data-col="_row_number">&nbsp;</th>
+    <th data-col="emp_code" data-sortable="asc" data-sortkey="staff.code">Code</th>
+    <th data-col="emp_name" data-sortable>Name</th>
+    <th data-col="emp_dept" data-sortable data-sortkey="department">Department</th>
+</thead>
+</table>
+```
+
 Format Options
 --------------
 - `money`
