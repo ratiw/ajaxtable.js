@@ -75,7 +75,7 @@
 
     function init($this) {
         $this.columns = parseColumns($this);
-        console.log('columns: ', $this.columns);
+        // console.log('columns: ', $this.columns);
 
         if (! $this.options.url) {
             $this.options.url = $this.data('url');
@@ -158,7 +158,6 @@
 
     function load($this, page) {
         var api_url = makeApiUrl($this, page);
-        console.log('url: ', api_url);
 
         // trigger loading data from api
         $this.trigger('loading');
