@@ -294,9 +294,9 @@
             // passing the row data to the event listeners
             $table.trigger('before_row', rowData);
 
-            // call on_render_row method (if defined) to allow setting
+            // call get_row_attributes callback method (if defined) to allow setting
             // custom attributes to the current row
-            attr = (method = getCustomFunction($table.options['on_render_row'])) ? method(rowData) : '';
+            attr = (method = getCustomFunction($table.options['get_row_attributes'])) ? method(rowData) : '';
 
             out += '<tr '+attr+'>';
             $.each($table.columns, function(idx, col) {
