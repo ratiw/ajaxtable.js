@@ -33,13 +33,6 @@
 
             init($this);
 
-            // setting buttons
-            $this.wrap('<div class="ajaxtable-wrapper"></div>');
-
-            if ($this.options.showSettingsButton) {
-                attachSettingButton($this);
-            }
-
             bindEvents($this);
 
             load($this);
@@ -53,6 +46,7 @@
         search: null,
         filter: null,
         sort: null,
+        refreshButton: null,
         showFooter : false,
         showSettingsButton : false,
         pagination : false,         // pagination element to be used or false to disable pagination
@@ -76,6 +70,8 @@
     function init($this) {
         $this.columns = parseColumns($this);
         //console.log('columns: ', $this.columns);
+
+        $this.wrap('<div class="ajaxtable-wrapper"></div>');
 
         if (! $this.options.url) {
             $this.options.url = $this.data('url');
@@ -103,6 +99,11 @@
 
         if ($this.options.sort) {
             updateSortableIcon($this);
+        }
+
+        // setting buttons
+        if ($this.options.showSettingsButton) {
+            attachSettingButton($this);
         }
     }
 
@@ -157,7 +158,10 @@
     }
 
     function load($this, page) {
-        var api_url = makeApiUrl($this, page);
+
+        var append = (method = getCustomFunction($this.options['appends_url'])) ? method() : '';
+
+        var api_url = makeApiUrl($this, page, append);
 
         // trigger loading data from api
         $this.trigger('loading');
@@ -172,7 +176,7 @@
             clearRows($this);
 
             var out = renderRow($this, results);
-            //var out = renderRow($this, object_get(results, $this.options.key));
+
             $this.tbody.html(out);
 
             if ($this.options.showFooter) {
@@ -206,7 +210,7 @@
         });
     }
 
-    function makeApiUrl($this, page)
+    function makeApiUrl($this, page, append)
     {
         var parameters = '';
 
@@ -224,6 +228,9 @@
 
         // page
         parameters += (page) ? '&page='+page : '';
+
+        // appendage
+        parameters += (append) ? '&'+append : '';
 
         return $this.options.url + '?' + parameters;
     }
@@ -247,6 +254,11 @@
             $this.options.sort = ((dir === 'desc') ? '-' : '') + column.sortkey;
 
             updateSortableIcon($this, column.name);
+            load($this);
+        });
+
+        $($this.options.refreshButton).on('click', function(e) {
+            console.log('refresh button clicked');
             load($this);
         });
     }
