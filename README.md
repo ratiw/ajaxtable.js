@@ -83,7 +83,13 @@ Options
 - `paginationFunction` : __null__ | function
 - `paginationInfo` : __true__ | false | 'element'
 - `page_size` : 10 -- default per page size
+- `refreshButton` : __null__ | <element> to be used as Refresh button
 
+Callbacks
+---------
+- `process_XXXX`
+- `on_render_row`
+- `appends_url`
 
 Events
 ------
