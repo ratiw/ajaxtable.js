@@ -88,7 +88,7 @@ Options
 Callbacks
 ---------
 - `process_XXXX`
-- `on_render_row`
+- `get_row_attributes`
 - `appends_url`
 
 Events
