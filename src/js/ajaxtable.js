@@ -22,14 +22,14 @@
 
 ;(function( $ )
 {
-    $.fn.ajaxTable = function(options) {
+    $.fn.ajaxTable = function(options, templates) {
 
         return this.each(function() {
 
             var $this = $(this);	// this table
 
             $this.options = $.extend({}, $.fn.ajaxTable.defaults, options);
-            $this.templates = $.extend($.fn.ajaxTable.templates);
+            $this.templates = $.extend($.fn.ajaxTable.templates, templates);
 
             init($this);
 
