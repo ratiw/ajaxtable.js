@@ -98,7 +98,7 @@
         }
 
         if ($this.options.sort) {
-            updateSortableIcon($this);
+            updateSortableIcon($this, $this.options.sort.replace('-',''));
         }
 
         // setting buttons
@@ -250,7 +250,6 @@
             // find column data
             var column = findColumnByName($this, $th.data('col'));
 
-            //$this.options.sort = ((dir === 'desc') ? '-' : '') + $th.data('col');
             $this.options.sort = ((dir === 'desc') ? '-' : '') + column.sortkey;
 
             updateSortableIcon($this, column.name);
