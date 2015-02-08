@@ -131,6 +131,10 @@
                 format_method: getCustomFunction($table.options['format_' + col_name])
             });
 
+            if ( ! col_visible) {
+                $th.hide();
+            }
+
             if (col_align) {
                 $th.css('text-align', col_align);
             }
@@ -175,7 +179,7 @@
 
             clearRows($this);
 
-            var out = renderRow($this, results);
+            var out = renderRows($this, results);
 
             $this.tbody.html(out);
 
@@ -281,7 +285,7 @@
         $this.tbody.empty();
     }
 
-    function renderRow($table, results) {
+    function renderRows($table, results) {
         var out = '';
 
         var data = object_get(results, $table.options.key);
@@ -420,7 +424,7 @@
     function hideInvisibleColumns($this) {
         $.each($this.columns, function(idx, col) {
             if ( ! col.visible) {
-                toggleColumn($this, idx+1);
+                hideColumn($this, idx+1);
             }
         });
     }
@@ -428,6 +432,16 @@
     function toggleColumn($table, nth) {
         $table.find('th:nth-child('+(nth)+')').toggle('fast', 'linear');
         $table.find('td:nth-child('+(nth)+')').toggle('fast', 'linear');
+    }
+
+    function hideColumn($table, nth) {
+        $table.find('th:nth-child('+(nth)+')').hide();
+        $table.find('td:nth-child('+(nth)+')').hide();
+    }
+
+    function showColumn($table, nth) {
+        $table.find('th:nth-child('+(nth)+')').show();
+        $table.find('td:nth-child('+(nth)+')').show();
     }
 
     //
@@ -628,9 +642,6 @@
  *  - Filters
  *  - Sort order
  *  - Paging via query string, also use it to display proper row number
- *  - The API should also send summary value (sum, count, avg) together
- *    with the data.
- *  - CRUD with form and additional API for them? -- will it add more complexity?
  *  - Column grouping?
  *  - Title and sub-title options
  *  - Table width 100% will not accommodate table with many columns (20+)
