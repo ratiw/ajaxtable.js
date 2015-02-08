@@ -61,7 +61,8 @@
             'column' : '<td{class}>{value}</td>'
         },
         'setting_button' : {
-            'label' : 'Show / hide columns'
+            //'label' : 'Show / hide columns'
+            'label' : '<span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>'
         },
         'pagination' : {},
         'pagination_info' : 'Showing <b>{start}</b> to <b>{end}</b> of <b>{total}</b> entries'
@@ -397,9 +398,9 @@
     }
 
     function attachSettingButton($table) {
-        var btn = '<div class="ajaxtable-settings pull-right">';
+        var btn = '<div class="ajaxtable-settings">';
         btn += 	'<div class="dropdown">';
-        btn += 		'<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-th-list"></i> '+$table.templates['setting_button']['label']+'</a>';
+        btn += 		'<a class="dropdown-toggle" data-toggle="dropdown" href="#">'+$table.templates['setting_button']['label']+'<span class="caret"></span></a>';
         btn += 		'<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dLabel">';
         for (var i = 0; i < $table.columns.length; i++) {
             if ($.trim($table.columns[i].label) == '') continue;
@@ -413,7 +414,7 @@
         btn += 	'</div>';
         btn += '</div>';
 
-        $table.before(btn);
+        $table.find('thead th:last-child').after(btn);
 
         $('div.ajaxtable-settings input.toggle-column').on('click', function(e) {
             var nth = parseInt($(this).attr('col-id')) + 1;
@@ -642,6 +643,9 @@
  *  - Filters
  *  - Sort order
  *  - Paging via query string, also use it to display proper row number
+ *  - The API should also send summary value (sum, count, avg) together
+ *    with the data.
+ *  - CRUD with form and additional API for them? -- will it add more complexity?
  *  - Column grouping?
  *  - Title and sub-title options
  *  - Table width 100% will not accommodate table with many columns (20+)
