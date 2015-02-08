@@ -50,6 +50,14 @@ table td.align-right, table th.align-right {
 .pagination-wrapper .pagination {
     margin: 0px;
 }
+.ajaxtable-settings {
+    position: absolute;
+    right: 8px;
+    margin-top: 8px;
+}
+.ajaxtable-settings a.dropdown-toggle {
+    color: #808080;
+}
 .ajaxtable-settings ul.dropdown-menu li {
     margin-left: 35px;
 }
