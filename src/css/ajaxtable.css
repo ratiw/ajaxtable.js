@@ -2,29 +2,29 @@
     display: block;
     position: relative;
 }
-table {
+table.ajaxtable {
     border: 1px solid silver;
 }
-table thead tr {
+table.ajaxtable thead tr {
     border-bottom: 3px solid silver;
 }
-table th:first-child, td:first-child {
+table.ajaxtable th:first-child, .ajaxtable td:first-child {
     border-right: 1px solid silver;
 }
-table th, table th a, table th a:link, table th a:visited {
+table.ajaxtable th, table th a, table.ajaxtable th a:link, table.ajaxtable th a:visited {
     color: #49545a;
     text-decoration: none;
 }
-table th a:hover {
+table.ajaxtable th a:hover {
     color: orangered;
 }
-table th[data-sortable] a {
+table.ajaxtable th[data-sortable] a {
     background: url("../img/orderable.png") no-repeat center left;
     background-position: 0 4px;
     background-size: 8px;
     padding-left: 13px;
 }
-table th[data-sortable="asc"] a {
+table.ajaxtable th[data-sortable="asc"] a {
     background: url("../img/orderable.png") no-repeat center left;
     background-size: 8px;
     padding-left: 13px;
@@ -35,13 +35,13 @@ table th[data-sortable="desc"] a {
     background-size: 8px;
     padding-left: 13px;
 }
-table td.align-center, table th.align-center {
+table.ajaxtable td.align-center, table.ajaxtable th.align-center {
     text-align: center;
 }
-table td.align-left, table th.align-left {
+table.ajaxtable td.align-left, table.ajaxtable th.align-left {
     text-align: left;
 }
-table td.align-right, table th.align-right {
+table.ajaxtable td.align-right, table.ajaxtable th.align-right {
     text-align: right;
 }
 .pagination-wrapper {
